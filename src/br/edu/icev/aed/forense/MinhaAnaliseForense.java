@@ -21,36 +21,42 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
 
         try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
             String linha;
+            boolean primeiraExec = true;
             while ((linha = br.readLine()) != null) {
+                if (primeiraExec) {
+                    primeiraExec = false;
+                    continue;                    
+                }
                 // Divide a linha por vírgulas, respeitando o formato CSV simples
                 String[] valores = linha.split(",");
                 // linhas.add(valores);
-                long n = Long.parseLong(valores[0]);
-                int m = Integer.parseInt(valores[5]);
-                long o = Long.parseLong(valores[6]);
-                Alerta alerta = new Alerta(n, valores[1], valores[2], valores[3], valores[4], m, o);
-                Stack<String> pilha = mapa.computeIfAbsent(valores[1], k -> new Stack<>());
+
+
+                Alerta alerta = new Alerta(Long.parseLong(valores[0]), valores[1], valores[2], valores[3], valores[4], Integer.parseInt(valores[5]), Long.parseLong(valores[6]));
+                Stack<String> pilha = mapa.computeIfAbsent(alerta.getUserId(), (k) -> new Stack<>());
 
                 if (mapa.containsKey(alerta.getUserId())) {
                     if (alerta.getActionType().equals("LOGIN")) {
                         pilha.push(alerta.getSessionId());
                         // System.out.println(mapa);
                         // System.out.println("\n\n");
+                        System.out.println(pilha);
                     } else if (alerta.getActionType().equals("LOGOUT")) {
                         if (pilha.empty()) {
                             logins_invalidos.add(alerta.getSessionId());
-                        }
-                        else{
-                            String last = pilha.pop();
-                            if (!last.equals(alerta.getSessionId())) {
-                                logins_invalidos.add(last);
+                            System.out.println(pilha);
+                        }else{
+                            String sessao = pilha.pop();
+                            System.out.println(pilha);
+                            if (!sessao.equals(alerta.getSessionId())) {
+                                logins_invalidos.add(sessao);
                                 logins_invalidos.add(alerta.getSessionId());
                             }
                         }
 
                     }
                 }
-                System.out.println(logins_invalidos);
+                // System.out.println(logins_invalidos);
                 // mapa.put(valores[1], new Stack<String>());
             }
         } catch (IOException e) {
@@ -59,6 +65,7 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
         // if (logins_invalidos == null) {
         //     return new HashSet<>();
         // }
+
         return logins_invalidos;
     }
 
@@ -75,6 +82,7 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
     @Override
     public Map<Long, Long> encontrarPicosTransferencia(String arquivo) throws IOException {
         // Implementar usando Stack (Next Greater Element)
+        
     }
 
     @Override

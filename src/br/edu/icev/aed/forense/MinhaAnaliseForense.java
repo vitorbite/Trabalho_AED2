@@ -25,26 +25,26 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
                 // Divide a linha por vírgulas, respeitando o formato CSV simples
                 String[] valores = linha.split(",");
                 // linhas.add(valores);
-                String userID = valores[1];
-                String sessionID = valores[2];
-                String actionType = valores[3];
-
+                long n = Long.parseLong(valores[0]);
+                int m = Integer.parseInt(valores[5]);
+                long o = Long.parseLong(valores[6]);
+                Alerta alerta = new Alerta(n, valores[1], valores[2], valores[3], valores[4], m, o);
                 Stack<String> pilha = mapa.computeIfAbsent(valores[1], k -> new Stack<>());
 
-                if (mapa.containsKey(userID)) {
-                    if (actionType.equals("LOGIN")) {
-                        pilha.push(sessionID);
+                if (mapa.containsKey(alerta.getUserId())) {
+                    if (alerta.getActionType().equals("LOGIN")) {
+                        pilha.push(alerta.getSessionId());
                         // System.out.println(mapa);
                         // System.out.println("\n\n");
-                    } else if (actionType.equals("LOGOUT")) {
+                    } else if (alerta.getActionType().equals("LOGOUT")) {
                         if (pilha.empty()) {
-                            logins_invalidos.add(sessionID);
+                            logins_invalidos.add(alerta.getSessionId());
                         }
                         else{
                             String last = pilha.pop();
-                            if (!last.equals(sessionID)) {
+                            if (!last.equals(alerta.getSessionId())) {
                                 logins_invalidos.add(last);
-                                logins_invalidos.add(sessionID);
+                                logins_invalidos.add(alerta.getSessionId());
                             }
                         }
 
@@ -56,9 +56,9 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo: " + e.getMessage());
         } // Implementar usando Map<String, Stack<String>>
-        if (logins_invalidos == null) {
-            return new HashSet<>();
-        }
+        // if (logins_invalidos == null) {
+        //     return new HashSet<>();
+        // }
         return logins_invalidos;
     }
 

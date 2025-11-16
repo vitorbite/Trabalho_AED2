@@ -12,7 +12,7 @@ import br.edu.icev.aed.forense.AnaliseForenseAvancada;
 public class MinhaAnaliseForense implements AnaliseForenseAvancada {
 
     @Override
-    public Set<String> encontrarSessoesInvalidas(String arquivo){
+    public Set<String> encontrarSessoesInvalidas(String arquivo) {
         Set<String> logins_invalidos = new TreeSet<>();
         Map<String, Stack<String>> mapa = new TreeMap<>();
 
@@ -22,7 +22,7 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
             while ((linha = br.readLine()) != null) {
                 if (primeiraExec) {
                     primeiraExec = false;
-                    continue;                    
+                    continue;
                 }
                 String[] valores = linha.split(",");
 
@@ -30,7 +30,8 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
                     continue;
                 }
 
-                Alerta alerta = new Alerta(Long.parseLong(valores[0]), valores[1], valores[2], valores[3], valores[4], Integer.parseInt(valores[5]), Long.parseLong(valores[6]));
+                Alerta alerta = new Alerta(Long.parseLong(valores[0]), valores[1], valores[2], valores[3], valores[4],
+                        Integer.parseInt(valores[5]), Long.parseLong(valores[6]));
                 Stack<String> pilha = mapa.computeIfAbsent(alerta.getUserId(), (k) -> new Stack<>());
 
                 if (mapa.containsKey(alerta.getUserId())) {
@@ -41,7 +42,7 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
                         if (pilha.empty()) {
                             logins_invalidos.add(alerta.getSessionId());
 
-                        }else{
+                        } else {
                             String sessao = pilha.pop();
 
                             if (!sessao.equals(alerta.getSessionId())) {
@@ -55,7 +56,7 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
             }
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo: " + e.getMessage());
-        } 
+        }
         System.out.println(logins_invalidos);
         return logins_invalidos.isEmpty() ? new HashSet<>() : logins_invalidos;
     }
@@ -74,16 +75,29 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
     public Map<Long, Long> encontrarPicosTransferencia(String arquivo) throws IOException {
         // Implementar usando Stack (Next Greater Element)
         Map<Long, Long> mapa = new HashMap<>();
+        Stack<Alerta> pilhaEventos = new Stack<>();
         List<String> linhas = Files.readAllLines(Paths.get(arquivo));
         Collections.reverse(linhas);
-        for(String linha : linhas){
+        boolean primeiraExec = true;
+
+        for (String linha : linhas) {
             String[] valores = linha.split(",");
             if (valores.length < 7) {
-                    continue;
-                }
-                
+                continue;
+            }
+
+            Alerta eventoAtual = new Alerta(Long.parseLong(valores[0]), valores[1], valores[2], valores[3], valores[4], Integer.parseInt(valores[5]), Long.parseLong(valores[6]));
+            pilhaEventos.push(eventoAtual);
+            
+            if (primeiraExec) {
+                primeiraExec = false;
+                continue;
+            }
+            while (!pilhaEventos.isEmpty() && pilhaEventos.getLast().getBytesTransferred() >= eventoAtual.getBytesTransferred()) {
+                pilhaEventos.removeLast();
+            }
         }
-        return mapa;        
+        return mapa;
     }
 
     @Override

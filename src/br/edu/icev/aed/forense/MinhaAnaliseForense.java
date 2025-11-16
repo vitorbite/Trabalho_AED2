@@ -1,6 +1,9 @@
 package src.br.edu.icev.aed.forense;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import br.edu.icev.aed.forense.Alerta;
@@ -70,7 +73,17 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
     @Override
     public Map<Long, Long> encontrarPicosTransferencia(String arquivo) throws IOException {
         // Implementar usando Stack (Next Greater Element)
-        
+        Map<Long, Long> mapa = new HashMap<>();
+        List<String> linhas = Files.readAllLines(Paths.get(arquivo));
+        Collections.reverse(linhas);
+        for(String linha : linhas){
+            String[] valores = linha.split(",");
+            if (valores.length < 7) {
+                    continue;
+                }
+                
+        }
+        return mapa;        
     }
 
     @Override

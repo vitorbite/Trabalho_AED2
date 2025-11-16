@@ -82,6 +82,11 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
             Collections.reverse(linhas);
             for (String linha : linhas) {
                 String[] valores = linha.split(",");
+                
+                // Pula o cabeçalho do CSV
+                if (valores[0].equals("TIMESTAMP")) {
+                    continue;
+                }
                 if (valores.length < 7) {
                     continue;
                 }
@@ -100,7 +105,9 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
                     continue;
                 }
                 System.out.println(mapa);
-                mapa.put(eventoAtual.getTimestamp(), pilhaEventos.getLast().getTimestamp());
+                if (!pilhaEventos.isEmpty()) {
+                    mapa.put(eventoAtual.getTimestamp(), pilhaEventos.lastElement().getTimestamp());
+                }
             }
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo: " + e.getMessage());

@@ -2,7 +2,6 @@ package src.br.edu.icev.aed.forense;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -72,30 +71,39 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
     }
 
     @Override
-    public Map<Long, Long> encontrarPicosTransferencia(String arquivo) throws IOException {
+    public Map<Long, Long> encontrarPicosTransferencia(String arquivo) {
         // Implementar usando Stack (Next Greater Element)
         Map<Long, Long> mapa = new HashMap<>();
         Stack<Alerta> pilhaEventos = new Stack<>();
-        List<String> linhas = Files.readAllLines(Paths.get(arquivo));
-        Collections.reverse(linhas);
         boolean primeiraExec = true;
+        
+        try {
+            List<String> linhas = Files.readAllLines(Paths.get(arquivo));
+            Collections.reverse(linhas);
+            for (String linha : linhas) {
+                String[] valores = linha.split(",");
+                if (valores.length < 7) {
+                    continue;
+                }
 
-        for (String linha : linhas) {
-            String[] valores = linha.split(",");
-            if (valores.length < 7) {
-                continue;
-            }
+                Alerta eventoAtual = new Alerta(Long.parseLong(valores[0]), valores[1], valores[2], valores[3],
+                        valores[4], Integer.parseInt(valores[5]), Long.parseLong(valores[6]));
+                pilhaEventos.push(eventoAtual);
 
-            Alerta eventoAtual = new Alerta(Long.parseLong(valores[0]), valores[1], valores[2], valores[3], valores[4], Integer.parseInt(valores[5]), Long.parseLong(valores[6]));
-            pilhaEventos.push(eventoAtual);
-            
-            if (primeiraExec) {
-                primeiraExec = false;
-                continue;
+                if (primeiraExec) {
+                    primeiraExec = false;
+                    continue;
+                }
+                while (!pilhaEventos.isEmpty()
+                        && pilhaEventos.getLast().getBytesTransferred() >= eventoAtual.getBytesTransferred()) {
+                    pilhaEventos.removeLast();
+                    continue;
+                }
+                System.out.println(mapa);
+                mapa.put(eventoAtual.getTimestamp(), pilhaEventos.getLast().getTimestamp());
             }
-            while (!pilhaEventos.isEmpty() && pilhaEventos.getLast().getBytesTransferred() >= eventoAtual.getBytesTransferred()) {
-                pilhaEventos.removeLast();
-            }
+        } catch (IOException e) {
+            System.err.println("Erro ao ler o arquivo: " + e.getMessage());
         }
         return mapa;
     }

@@ -126,8 +126,16 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
         }
         // 5. NUNCA retornar null. (Adicionei a palavra-chave return em outras partes
         // para cumprir com o requisito de NUNCA retornar null)
+        
+        System.out.println("Alertas priorizados:");
+
+            for (Alerta alerta : alertasPriorizados) {
+
+                System.out.println(alerta);
+            }
         return alertasPriorizados;
-        // Com isso os 5 requisitos para o Segundo desafio estão concluidos
+         
+        
     }
 
     @Override
@@ -170,7 +178,6 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
             System.err.println("Erro ao ler o arquivo: " + e.getMessage());
         }
         mapa.keySet().forEach(e->System.out.println(e));
-        System.out.println("Chave 1700000506: " + mapa.get(Long.parseLong("1700000506")));
         System.out.println("-----");
         mapa.values().forEach(e->System.out.println(e));
         return mapa;

@@ -1,6 +1,5 @@
 {
     "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "analise-forense-aed.jar"
+    "lib/**/*.jar"
     ]
 }

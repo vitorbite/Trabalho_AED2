@@ -1,5 +1,4 @@
-package src;
-import src.br.edu.icev.aed.forense.MinhaAnaliseForense;
+import br.edu.icev.aed.forense.MinhaAnaliseForense;
 
 public class Main {
     public static void main(String[] args) {

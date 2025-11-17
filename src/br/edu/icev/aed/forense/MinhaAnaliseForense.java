@@ -5,9 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-import br.edu.icev.aed.forense.Alerta;
-import br.edu.icev.aed.forense.AnaliseForenseAvancada;
-
 public class MinhaAnaliseForense implements AnaliseForenseAvancada {
 
     @Override

@@ -129,8 +129,16 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
         }
         // 5. NUNCA retornar null. (Adicionei a palavra-chave return em outras partes
         // para cumprir com o requisito de NUNCA retornar null)
+        
+        System.out.println("Alertas priorizados:");
+
+            for (Alerta alerta : alertasPriorizados) {
+
+                System.out.println(alerta);
+            }
         return alertasPriorizados;
-        // Com isso os 5 requisitos para o Segundo desafio estão concluidos
+         
+        
     }
 
     @Override

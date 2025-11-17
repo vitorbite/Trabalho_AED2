@@ -173,7 +173,6 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
             System.err.println("Erro ao ler o arquivo: " + e.getMessage());
         }
         mapa.keySet().forEach(e->System.out.println(e));
-        System.out.println("Chave 1700000506: " + mapa.get(Long.parseLong("1700000506")));
         System.out.println("-----");
         mapa.values().forEach(e->System.out.println(e));
         return mapa;

@@ -10,7 +10,9 @@ public class Main {
         a.encontrarPicosTransferencia(caminhoArquivo);
         try {
            
-            var alertas = a.priorizarAlertas("C:\\Users\\arthu\\OneDrive\\Desktop\\AED2\\Trabalho_AED2\\arquivo_logs.csv", 4);
+            var alertas = a.priorizarAlertas(caminhoArquivo, 4);
+            System.out.println("=== Alertas Prioritizados ===");
+            System.out.println(alertas);
             
         } catch (IOException e) {
             e.printStackTrace();

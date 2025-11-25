@@ -178,12 +178,7 @@ public List<String> reconstruirLinhaTempo(String arquivo, String sessionId) thro
         // 5. NUNCA retornar null. (Adicionei a palavra-chave return em outras partes
         // para cumprir com o requisito de NUNCA retornar null)
         
-        System.out.println("Alertas priorizados:");
-
-            for (Alerta alerta : alertasPriorizados) {
-
-                System.out.println(alerta);
-            }
+       
         return alertasPriorizados;
          
         

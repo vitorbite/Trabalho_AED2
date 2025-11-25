@@ -4,14 +4,14 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        String caminhoArquivo = "C:\\Users\\arthu\\OneDrive\\Desktop\\AED2\\Trabalho_AED2\\arquivo_logs.csv";
+        String caminhoArquivo = "arquivo_logs.csv";
         MinhaAnaliseForense a = new MinhaAnaliseForense();
         // a.encontrarSessoesInvalidas(...);
         a.encontrarPicosTransferencia(caminhoArquivo);
         try {
            
             var alertas = a.priorizarAlertas(caminhoArquivo, 4);
-            System.out.println("=== Alertas Prioritizados ===");
+            System.out.println("=== Alertas Priorizados ===");
             System.out.println(alertas);
             
         } catch (IOException e) {

@@ -59,12 +59,63 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
         System.out.println(logins_invalidos);
         return logins_invalidos.isEmpty() ? new HashSet<>() : logins_invalidos;
     }
+        
+        /*1. Ler o arquivo CSV linha por linha.
 
+        2. Identificar a coluna SESSION_ID (índice 2) e ACTION_TYPE (índice 3) 
+        com base no cabeçalho do arquivo.
+
+        3. Se o ID da sessão for igual ao solicitado, adicionar a ação em uma Queue (Fila).
+        
+        4. Após ler todo o arquivo, retirar os itens da Fila (FIFO) e passá-los
+        para uma List para o retorno.*/
     @Override
-    public List<String> reconstruirLinhaTempo(String arquivo, String sessionId) throws IOException {
-        // Implementar usando Queue<String>
-        return new ArrayList<>();
+public List<String> reconstruirLinhaTempo(String arquivo, String sessionId) throws IOException {
+    // 1. Inicializa a Fila e a Lista de retorno
+    Queue<String> filaAcoes = new LinkedList<>();
+    List<String> resultado = new ArrayList<>();
+
+    try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
+        String linha;
+        boolean primeiraExec = true;
+
+        while ((linha = br.readLine()) != null) {
+            // Pula o cabeçalho
+            if (primeiraExec) {
+                primeiraExec = false;
+                continue;
+            }
+
+            String[] valores = linha.split(",");
+
+            // Verifica se a linha está bem formatada (mínimo de colunas necessárias)
+            if (valores.length < 4) {
+                continue;
+            }
+
+            // Mapeamento baseado no CSV: índice 2 = SESSION_ID, índice 3 = ACTION_TYPE
+            String idAtual = valores[2];
+            String acaoAtual = valores[3];
+
+            // 2. Filtra pela sessionId e adiciona à Fila
+            if (idAtual.equals(sessionId)) {
+                filaAcoes.add(acaoAtual);
+            }
+        }
+    } catch (IOException e) {
+        System.err.println("Erro ao ler o arquivo: " + e.getMessage());
+        throw e; // Repassa a exceção conforme assinatura do método
     }
+
+    // 3. Transfere da Fila para a Lista (Desenfileirar)
+    // Isso garante a ordem e cumpre o requisito de usar Queue
+    while (!filaAcoes.isEmpty()) {
+        resultado.add(filaAcoes.poll());
+    }
+
+    // Retorna a lista (vazia se o ID não foi encontrado, nunca null)
+    return resultado;
+}
 
     // Prioriza eventos de log com base no SEVERITY_LEVEL (decrescente)
     @Override
@@ -129,6 +180,8 @@ public class MinhaAnaliseForense implements AnaliseForenseAvancada {
         }
         // 5. NUNCA retornar null. (Adicionei a palavra-chave return em outras partes
         // para cumprir com o requisito de NUNCA retornar null)
+        
+       
         return alertasPriorizados;
         // Com isso os 5 requisitos para o Segundo desafio estão concluidos
     }

@@ -5,6 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+//import br.edu.icev.aed.forense.Alerta;
+//import br.edu.icev.aed.forense.AnaliseForenseAvancada;
+
 public class MinhaAnaliseForense implements AnaliseForenseAvancada {
 
     @Override
@@ -180,8 +183,7 @@ public List<String> reconstruirLinhaTempo(String arquivo, String sessionId) thro
         
        
         return alertasPriorizados;
-         
-        
+        // Com isso os 5 requisitos para o Segundo desafio estão concluidos
     }
 
     @Override
@@ -204,7 +206,7 @@ public List<String> reconstruirLinhaTempo(String arquivo, String sessionId) thro
 
                 Alerta eventoAtual = new Alerta(Long.parseLong(valores[0]), valores[1], valores[2], valores[3],
                         valores[4], Integer.parseInt(valores[5]), Long.parseLong(valores[6]));
-                
+
                 if (!eventoAtual.getActionType().equals("DATA_TRANSFER")) {
                     continue;
                 }
@@ -223,16 +225,122 @@ public List<String> reconstruirLinhaTempo(String arquivo, String sessionId) thro
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo: " + e.getMessage());
         }
-        mapa.keySet().forEach(e->System.out.println(e));
+        mapa.keySet().forEach(e -> System.out.println(e));
+        System.out.println("Chave 1700000506: " + mapa.get(Long.parseLong("1700000506")));
         System.out.println("-----");
-        mapa.values().forEach(e->System.out.println(e));
+        mapa.values().forEach(e -> System.out.println(e));
         return mapa;
     }
 
     @Override
     public Optional<List<String>> rastrearContaminacao(String arquivo, String origem, String destino)
             throws IOException {
-        // Implementar usando BFS em grafo
+        Map<String, List<String>> lista_adjacencia = new HashMap<>();
+        Map<String, String> predecessor = new HashMap<>();
+        Queue<String> fila = new LinkedList<>();
+        
+        Set<String> visitados = new HashSet<>();
+        boolean primeiraExec = true;
+        boolean encontrado = false;
+        
+
+        Map<String, List<String>> recursosPorSessao = new HashMap<>();
+        Set<String> recursosExistentes = new HashSet<>();
+
+        try {
+            List<String> linhas = Files.readAllLines(Paths.get(arquivo));
+            
+            // Primeiro passo: agrupar recursos por sessão
+            for (String linha : linhas) {
+                if (primeiraExec) {
+                    primeiraExec = false;
+                    continue;
+                }
+                String[] valores = linha.split(",");
+                if (valores.length < 7) {
+                    continue;
+                }
+                String sessionId = valores[2];
+                String recurso = valores[4];
+                recursosExistentes.add(recurso);
+                
+                recursosPorSessao.computeIfAbsent(sessionId, k -> new ArrayList<>()).add(recurso);
+            }
+
+            for (String sessionId : recursosPorSessao.keySet()) {
+                List<String> recursos = recursosPorSessao.get(sessionId);
+                
+                for (int i = 0; i < recursos.size() - 1; i++) {
+                    String atual = recursos.get(i);
+                    String proximo = recursos.get(i + 1);
+                    
+                    if (!atual.equals(proximo)) {
+                        lista_adjacencia.computeIfAbsent(atual, k -> new ArrayList<>());
+                        if (!lista_adjacencia.get(atual).contains(proximo)) {
+                            lista_adjacencia.get(atual).add(proximo);
+                        }
+                    }
+                }
+            }
+
+            // Verifica se origem é igual ao destino
+            if (origem.equals(destino)) {
+                if (recursosExistentes.contains(origem)) {
+                    return Optional.of(Collections.singletonList(origem));
+                } else {
+                    return Optional.empty();
+                }
+            }
+
+            // Se a origem não existe nos logs, não há caminho
+            if (!recursosExistentes.contains(origem)) {
+                return Optional.empty();
+            }
+            fila.add(origem);
+            visitados.add(origem);
+
+            while (!fila.isEmpty() && !encontrado) {
+                String u = fila.remove();
+                List<String> vizinhos = lista_adjacencia.getOrDefault(u, Collections.emptyList());
+                
+                for (String v : vizinhos) {
+                    if (visitados.contains(v)) {
+                        continue;
+                    }
+                    
+                    visitados.add(v);
+                    predecessor.put(v, u);
+                    
+                    if (v.equals(destino)) {
+                        encontrado = true;
+                        break;
+                    }
+                    
+                    fila.add(v);
+                }
+            }
+
+            if (encontrado) {
+                LinkedList<String> caminho = new LinkedList<>();
+                String atual = destino;
+                
+                while (atual != null) {
+                    caminho.add(atual);
+                    if (atual.equals(origem)) {
+                        break;
+                    }
+                    atual = predecessor.get(atual);
+                }
+                
+                Collections.reverse(caminho);
+                
+                return Optional.of(caminho);
+            }
+
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+
         return Optional.empty();
     }
 }
